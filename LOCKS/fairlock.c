@@ -44,12 +44,11 @@ fair_lock(fair_lock_t *lock)
 		 * situation happens if there are more threads than cores in the
 		 * system and we're thrashing on shared resources.
 		 */
-#if 0
+
 		if (++pause_cnt < SPINCOUNT)
 			;
 		else
 			__sleep(0, 10);
-#endif
 	}
 
 	/*
