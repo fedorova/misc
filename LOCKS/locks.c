@@ -10,7 +10,7 @@
 #define MAX_THREADS 96
 #define EXPERIMENT_DURATION_SECONDS 10
 
-static unsigned ratio = 3;
+static unsigned ratio = 1;
 static pthread_mutex_t mutex;
 
 #define CS_DURATION 1
