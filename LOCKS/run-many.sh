@@ -10,4 +10,4 @@ do
     ./locks $t $1 | tee $OUTPUT-$t-threads
 done
 
-grep 'per second' $OUTPUT* | | awk '{print $4}'
+grep 'per second' $OUTPUT* | awk '{print $4}'
