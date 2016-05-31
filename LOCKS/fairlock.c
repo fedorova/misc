@@ -3,6 +3,8 @@
 #define SPINCOUNT 1000
 #define MILLION 1000000
 
+#define NULL 0
+
 static void
 __sleep(uint64_t seconds, uint64_t micro_seconds)
 {
