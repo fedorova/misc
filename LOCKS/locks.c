@@ -10,8 +10,7 @@
 #define MAX_THREADS 96
 #define EXPERIMENT_DURATION_SECONDS 10
 
-static unsigned ratio = 1;
-static pthread_mutex_t mutex;
+static unsigned ratio = 2;
 
 #define CS_DURATION 1
 #define NON_CS_DURATION CS_DURATION * ratio
@@ -20,6 +19,11 @@ typedef struct {
 	pthread_t tid;
 	unsigned iters_completed;
 } thread_data_t;
+
+
+#ifdef USE_PTHREAD_MUTEX
+
+static pthread_mutex_t mutex;
 
 static void
 init_lock(void) {
@@ -37,8 +41,31 @@ static void
 release_lock(void) {
 
 	pthread_mutex_unlock(&mutex);
-
 }
+
+#else
+#include <fairlock.h>
+
+fair_lock_t fairlock;
+
+static void
+init_lock(void) {
+	fair_init(&fairlock);
+}
+
+static void
+acquire_lock(void) {
+
+	fair_lock(&fairlock);
+}
+
+static void
+release_lock(void) {
+
+	fair_unlock(&fairlock);
+}
+
+#endif
 
 static void
 get_time_or_exit(struct timeval *tv) {
@@ -128,6 +155,11 @@ int main(int argc, char **argv) {
 	printf("Threads: %d\n", threads);
 	printf("Ratio: %d\n", ratio);
 	printf("Target duration: %d\n", EXPERIMENT_DURATION_SECONDS);
+#ifdef USE_PTHREAD_MUTEX
+	printf("Lock type: pthread mutex\n");
+#else
+	printf("Lock type: fair lock\n");
+#endif
 
 	/* Allocate an array where each thread will report
 	 * the number of critical sections that it completed.
