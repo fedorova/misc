@@ -13,10 +13,10 @@
  */
 struct __fair_lock {
 	union {
-		volatile uint32_t lock;
+		volatile uint64_t lock;
 		struct {
-			volatile uint16_t owner;  /* Ticket for current owner */
-			volatile uint16_t waiter; /* Last allocated ticket */
+			volatile uint32_t owner;  /* Ticket for current owner */
+			volatile uint32_t waiter; /* Last allocated ticket */
 		} s;
 	} u;
 #define	fair_lock_owner u.s.owner

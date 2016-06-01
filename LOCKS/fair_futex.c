@@ -19,7 +19,8 @@ fair_futex_init(fair_futex_t *lock) {
 int
 fair_futex_lock(fair_futex_t *lock) {
 
-	uint16_t ticket, old_futex;
+	uint32_t ticket;
+	uint32_t old_futex;
 	int pause_cnt;
 
 	/*
@@ -32,14 +33,14 @@ fair_futex_lock(fair_futex_t *lock) {
 retry:
 	__sync_synchronize();
 	old_futex = lock->futex;
-	if(old_futex == ticket / SPIN_CONTROL) {
-		printf("ticket %d spins (lo: %d)\n", ticket,
-		       lock->fairlock.fair_lock_owner);
+	if(old_futex == (uint32_t)ticket / SPIN_CONTROL) {
+//		printf("ticket %d spins (lo: %d)\n", ticket,
+//		       lock->fairlock.fair_lock_owner);
 		while (ticket != lock->fairlock.fair_lock_owner) ;
 	}
 	else {
-		printf("ticket %d sleeps (lo: %d)\n", ticket,
-		       lock->fairlock.fair_lock_owner);
+//		printf("ticket %d sleeps (lo: %d)\n", ticket,
+//		       lock->fairlock.fair_lock_owner);
 		sys_futex((void*)&lock->futex, FUTEX_WAIT, old_futex, 0, 0, 0);
 		goto retry;
 	}
@@ -50,7 +51,7 @@ retry:
 	 */
 	__sync_synchronize();
 
-	printf("ticket %d got lock\n", ticket);
+//	printf("ticket %d got lock\n", ticket);
 
 	return ticket;
 }
@@ -58,23 +59,24 @@ retry:
 int
 fair_futex_unlock(fair_futex_t *lock) {
 
-	printf("ticket %d unlocking\n", lock->fairlock.fair_lock_owner);
+//	printf("ticket %d unlocking\n", lock->fairlock.fair_lock_owner);
 
 	/* Only the lock holder ever increments the futex value */
-	uint16_t old_futex = lock->futex;
+	uint32_t old_futex = lock->futex;
 
 	lock->futex = (lock->fairlock.fair_lock_owner + 1) / SPIN_CONTROL;
 	__sync_synchronize();
 
 	/* Only wake if we are changing the value of the futex */
 	if(lock->futex != old_futex) {
+//		printf("ticket %d to wake\n",  lock->fairlock.fair_lock_owner);
 		sys_futex((void*)&lock->futex, FUTEX_WAKE, INT_MAX, 0, 0, 0);
-		printf("ticket %d wakes: old fut: %d, fut: %d\n",
-		       lock->fairlock.fair_lock_owner, old_futex, lock->futex);
+//		printf("ticket %d wakes: old fut: %d, fut: %d\n",
+//		       lock->fairlock.fair_lock_owner, old_futex, lock->futex);
 	}
 	else {
-		printf("DISASTER! old fut: %d, fut: %d flo: %d\n",
-		       old_futex, lock->futex, lock->fairlock.fair_lock_owner);
+//		printf("DISASTER! old fut: %d, fut: %d flo: %d\n",
+//		       old_futex, lock->futex, lock->fairlock.fair_lock_owner);
 		_exit(-1);
 	}
 	fair_unlock(&lock->fairlock);

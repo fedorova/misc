@@ -8,7 +8,7 @@
 
 #define MILLION 1000000
 #define MAX_THREADS 96
-#define EXPERIMENT_DURATION_SECONDS 100
+#define EXPERIMENT_DURATION_SECONDS 10
 
 static unsigned ratio = 2;
 

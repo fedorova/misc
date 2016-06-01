@@ -8,7 +8,7 @@
 
 typedef struct __fair_futex {
 	fair_lock_t fairlock;
-	volatile uint16_t futex;
+	volatile uint32_t futex;
 } fair_futex_t;
 
 void fair_futex_init(fair_futex_t *lock);
