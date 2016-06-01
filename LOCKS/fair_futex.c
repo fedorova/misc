@@ -8,7 +8,7 @@ int val2) {
 	return syscall(SYS_futex, addr1, op, val2, timeout, addr2, val2);
 }
 
-#define SPIN_CONTROL 1
+#define SPIN_CONTROL 8
 
 void
 fair_futex_init(fair_futex_t *lock) {
@@ -77,7 +77,7 @@ fair_futex_unlock(fair_futex_t *lock) {
 	else {
 //		printf("DISASTER! old fut: %d, fut: %d flo: %d\n",
 //		       old_futex, lock->futex, lock->fairlock.fair_lock_owner);
-		_exit(-1);
+//		_exit(-1);
 	}
 	fair_unlock(&lock->fairlock);
 }
