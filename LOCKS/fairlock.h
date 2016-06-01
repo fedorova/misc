@@ -1,5 +1,5 @@
-#ifndef FAIR_LOCK
-#define FAIR_LOCK
+#ifndef __FAIRLOCK_H
+#define __FAIRLOCK_H
 
 #include <sys/types.h>
 #include <inttypes.h>
@@ -13,10 +13,10 @@
  */
 struct __fair_lock {
 	union {
-		uint32_t lock;
+		volatile uint32_t lock;
 		struct {
-			uint16_t owner;		/* Ticket for current owner */
-			uint16_t waiter;	/* Last allocated ticket */
+			volatile uint16_t owner;  /* Ticket for current owner */
+			volatile uint16_t waiter; /* Last allocated ticket */
 		} s;
 	} u;
 #define	fair_lock_owner u.s.owner
