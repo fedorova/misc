@@ -3,6 +3,8 @@
 #define SPINCOUNT 1000
 #define MILLION 1000000
 
+#define NULL 0
+
 static void
 __sleep(uint64_t seconds, uint64_t micro_seconds)
 {
@@ -44,11 +46,12 @@ fair_lock(fair_lock_t *lock)
 		 * situation happens if there are more threads than cores in the
 		 * system and we're thrashing on shared resources.
 		 */
-
+#if 0
 		if (++pause_cnt < SPINCOUNT)
 			;
 		else
 			__sleep(0, 10);
+#endif
 	}
 
 	/*

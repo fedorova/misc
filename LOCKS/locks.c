@@ -20,8 +20,10 @@ typedef struct {
 	unsigned iters_completed;
 } thread_data_t;
 
+#define USE_PTHREAD_MUTEX 0
+#define USE_FAIR_LOCK 0
 
-#ifdef USE_PTHREAD_MUTEX
+#if USE_PTHREAD_MUTEX
 
 static pthread_mutex_t mutex;
 
@@ -43,7 +45,7 @@ release_lock(void) {
 	pthread_mutex_unlock(&mutex);
 }
 
-#else
+#elif USE_FAIR_LOCK
 #include <fairlock.h>
 
 fair_lock_t fairlock;
@@ -63,6 +65,25 @@ static void
 release_lock(void) {
 
 	fair_unlock(&fairlock);
+}
+
+#else
+#include <fair_futex.h>
+fair_futex_t fair_futex;
+
+static void
+init_lock(void) {
+	fair_futex_init(&fair_futex);
+}
+
+static void
+acquire_lock(void) {
+	fair_futex_lock(&fair_futex);
+}
+
+static void
+release_lock(void) {
+	fair_futex_unlock(&fair_futex);
 }
 
 #endif
@@ -155,10 +176,12 @@ int main(int argc, char **argv) {
 	printf("Threads: %d\n", threads);
 	printf("Ratio: %d\n", ratio);
 	printf("Target duration: %d\n", EXPERIMENT_DURATION_SECONDS);
-#ifdef USE_PTHREAD_MUTEX
+#if USE_PTHREAD_MUTEX
 	printf("Lock type: pthread mutex\n");
-#else
+#elif USE_FAIR_LOCK
 	printf("Lock type: fair lock\n");
+#else
+	printf("Lock type: fair futex\n");
 #endif
 
 	/* Allocate an array where each thread will report
